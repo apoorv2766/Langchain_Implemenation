@@ -1,3 +1,5 @@
+
+import { writeFileSync } from "fs"
 import { ChatGroq } from "@langchain/groq"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
 import "dotenv/config"
@@ -47,6 +49,13 @@ async function main() {
             }
         ]
     })
+
+    const drawableGraph = await agent.getGraphAsync()
+    const graphStateImage = await drawableGraph.drawMermaidPng()
+    const graphStateArrayBuffer = await graphStateImage.arrayBuffer()
+
+    const filePath = "./graphStateImage.png"
+    writeFileSync(filePath, new Uint8Array(graphStateArrayBuffer))
     console.log("Assistant:", result)
 }
 
