@@ -75,7 +75,6 @@ The agent generates:
 ```
 langchain_project/
 ├── agent.js              # Main agent implementation
-├── agents.js             # Alias entry point
 ├── package.json          # Dependencies and scripts
 ├── .env                  # API keys (not committed)
 ├── .env.example          # Example environment variables
