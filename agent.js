@@ -1,5 +1,6 @@
 
 import { writeFileSync } from "fs"
+import * as readline from "node:readline/promises"
 import { ChatGroq } from "@langchain/groq"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
 import "dotenv/config"
@@ -41,14 +42,32 @@ async function main() {
         tools: [search, calendatEvents]
     })
 
-    const result = await agent.invoke({
-        messages: [
-            {
-                role: "human",
-                content: "hi do i have any meeting?"
-            }
-        ]
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
     })
+
+    while (true) {
+        const userQuery = await rl.question("You: ")
+        if (userQuery === "/bye") break;
+        const result = await agent.invoke({
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a personal assistant. Use provided tools to get the information if
+                    you don't know the answer. Current date and time: ${new Date().toLocaleString()}.`
+                },
+                {
+                    role: "human",
+                    content: userQuery
+                }
+            ]
+        })
+        console.log("Assistant:", result.messages[result.messages.length - 1].content)
+
+    }
+
+    rl.close()
 
     const drawableGraph = await agent.getGraphAsync()
     const graphStateImage = await drawableGraph.drawMermaidPng()
@@ -56,7 +75,6 @@ async function main() {
 
     const filePath = "./graphStateImage.png"
     writeFileSync(filePath, new Uint8Array(graphStateArrayBuffer))
-    console.log("Assistant:", result)
 }
 
 main()
